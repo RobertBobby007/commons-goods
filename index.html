@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulace hry na společné statky</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>Simulace hry na společné statky</h1>
+<p>Každý hráč má svou strategii a přispívá do fondu podle ní.</p>
+
+<button onclick="simulateGame()">Spustit simulaci</button>
+
+<div class="results">
+    <h3>Výsledky</h3>
+    <p id="gameResults"></p>
+</div>
+
+<script>
+    class Player {
+        constructor(name, strategy) {
+            this.name = name;
+            this.strategy = strategy;
+            this.resources = 10; // Počáteční množství
+        }
+
+        contribute(previousAverage = 0) {
+            switch (this.strategy) {
+                case "fair":
+                    return this.resources * 0.5; // Férový hráč (50%)
+                case "selfish":
+                    return 0; // Sobecký hráč (0%)
+                case "reactive":
+                    return previousAverage; // Reaktivní hráč přispívá podle průměru
+                case "random":
+                    return Math.random() * this.resources; // Náhodný hráč
+                default:
+                    return 0;
+            }
+        }
+    }
+
+    function simulateGame() {
+        let players = [
+            new Player("Hráč 1", "fair"),
+            new Player("Hráč 2", "selfish"),
+            new Player("Hráč 3", "reactive"),
+            new Player("Hráč 4", "random"),
+            new Player("Hráč 5", "fair")
+        ];
+
+        let rounds = 5;
+        let previousAverage = 5; // Počáteční průměrná hodnota
+        let results = "";
+
+        for (let round = 0; round < rounds; round++) {
+            let totalContribution = 0;
+            let contributions = [];
+
+            players.forEach(player => {
+                let contribution = player.contribute(previousAverage);
+                contributions.push(contribution);
+                totalContribution += contribution;
+            });
+
+            previousAverage = totalContribution / players.length;
+
+            results += `<strong>Kolo ${round + 1}:</strong><br>`;
+            players.forEach((player, index) => {
+                results += `${player.name} (${player.strategy}): ${contributions[index].toFixed(2)}<br>`;
+            });
+            results += `Celkový fond: ${totalContribution.toFixed(2)}<br><br>`;
+        }
+
+        document.getElementById("gameResults").innerHTML = results;
+    }
+</script>
+
+</body>
+</html>
